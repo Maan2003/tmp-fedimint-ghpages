@@ -44,6 +44,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sign: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_musig_nonce_process: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly __wbg_wasmclient_free: (a: number) => void;
   readonly start: () => void;
   readonly wasmclient_join_federation: (a: number, b: number) => number;
@@ -53,7 +54,6 @@ export interface InitOutput {
   readonly wasmclient_pay: (a: number, b: number, c: number) => number;
   readonly wasmclient_invoice: (a: number, b: number) => number;
   readonly decode_invoice: (a: number, b: number, c: number) => void;
-  readonly rustsecp256k1zkp_v0_6_0_musig_nonce_process: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_agg: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_agg: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_gen: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;

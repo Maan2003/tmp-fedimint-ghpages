@@ -2,6 +2,7 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export function rustsecp256k1zkp_v0_6_0_musig_partial_sign(a: number, b: number, c: number, d: number, e: number, f: number): number;
+export function rustsecp256k1zkp_v0_6_0_musig_nonce_process(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function __wbg_wasmclient_free(a: number): void;
 export function start(): void;
 export function wasmclient_join_federation(a: number, b: number): number;
@@ -11,7 +12,6 @@ export function wasmclient_balance(a: number): number;
 export function wasmclient_pay(a: number, b: number, c: number): number;
 export function wasmclient_invoice(a: number, b: number): number;
 export function decode_invoice(a: number, b: number, c: number): void;
-export function rustsecp256k1zkp_v0_6_0_musig_nonce_process(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function rustsecp256k1zkp_v0_6_0_musig_nonce_agg(a: number, b: number, c: number, d: number): number;
 export function rustsecp256k1zkp_v0_6_0_musig_pubkey_agg(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function rustsecp256k1zkp_v0_6_0_musig_nonce_gen(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): number;
