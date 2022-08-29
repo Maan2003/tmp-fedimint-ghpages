@@ -1,39 +1,6 @@
 import initWasm, { WasmClient, WasmDb, init_, decode_invoice } from "./pkg/minimint_bridge.js";
-import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
 // start loading wasm as soon as possible
 const wasmPromise = initWasm();
-export var database;
-(function (database) {
-    async function read(name) {
-        const db = await openDB(name, 1, {
-            async upgrade(db) {
-                db.createObjectStore("main");
-            }
-        });
-        let cursor = await db.transaction("main").store.openCursor();
-        const result = [];
-        while (cursor) {
-            result.push([new Uint8Array(cursor.key), cursor.value]);
-            cursor = await cursor.continue();
-        }
-        return result;
-    }
-    database.read = read;
-    async function save(name, entries) {
-        const db = await openDB(name, 1, {
-            async upgrade(db) {
-                db.createObjectStore("main");
-            }
-        });
-        const store = db.transaction("main", "readwrite").store;
-        await store.clear();
-        for (const [key, value] of entries) {
-            store.put(value, key);
-        }
-    }
-    database.save = save;
-})(database || (database = {}));
-globalThis.database = database;
 export class WasmBridge {
     constructor() {
         this.client = undefined;
@@ -68,8 +35,8 @@ export class WasmBridge {
     decodeInvoice(invoice) {
         return decode_invoice(invoice);
     }
-    async invoice(amount) {
-        return await this.client.invoice(amount);
+    async invoice(amount, description) {
+        return await this.client.invoice(amount, description);
     }
     async pay(bolt11) {
         return await this.client.pay(bolt11);

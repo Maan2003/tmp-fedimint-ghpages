@@ -28,6 +28,16 @@ export class WasmClient {
 */
   info(): void;
 /**
+* @returns {string}
+*/
+  get_address(): string;
+/**
+* @param {string} txoutproof
+* @param {string} tx
+* @returns {Promise<any>}
+*/
+  pegin(txoutproof: string, tx: string): Promise<any>;
+/**
 */
   leave_federation(): void;
 /**
@@ -41,9 +51,10 @@ export class WasmClient {
   pay(bolt11: string): Promise<any>;
 /**
 * @param {number} amount
+* @param {string} description
 * @returns {Promise<any>}
 */
-  invoice(amount: number): Promise<any>;
+  invoice(amount: number, description: string): Promise<any>;
 }
 /**
 */
@@ -55,9 +66,6 @@ export class WasmDb {
 * @returns {Promise<WasmDb>}
 */
   static load(idb_name: string): Promise<WasmDb>;
-/**
-*/
-  debug(): void;
 /**
 * @returns {WasmDb}
 */
@@ -76,23 +84,24 @@ export interface InitOutput {
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sign: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_process: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_agg: (a: number, b: number, c: number, d: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_agg: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_gen: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
   readonly __wbg_wasmclient_free: (a: number) => void;
   readonly start: () => void;
   readonly init_: (a: number) => number;
   readonly wasmclient_join_federation: (a: number, b: number, c: number) => number;
   readonly wasmclient_info: (a: number) => void;
+  readonly wasmclient_get_address: (a: number, b: number) => void;
+  readonly wasmclient_pegin: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly wasmclient_leave_federation: (a: number, b: number) => void;
   readonly wasmclient_balance: (a: number) => number;
   readonly wasmclient_pay: (a: number, b: number, c: number) => number;
-  readonly wasmclient_invoice: (a: number, b: number) => number;
+  readonly wasmclient_invoice: (a: number, b: number, c: number, d: number) => number;
   readonly __wbg_wasmdb_free: (a: number) => void;
   readonly wasmdb_load: (a: number, b: number) => number;
-  readonly wasmdb_debug: (a: number) => void;
   readonly wasmdb_clone: (a: number) => number;
   readonly wasmdb_save: (a: number) => number;
   readonly decode_invoice: (a: number, b: number, c: number) => void;
-  readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_agg: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sig_serialize: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sig_parse: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_adapt: (a: number, b: number, c: number, d: number, e: number) => number;
@@ -103,15 +112,6 @@ export interface InitOutput {
   readonly rustsecp256k1zkp_v0_6_0_musig_aggnonce_parse: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sig_agg: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_nonce_parity: (a: number, b: number, c: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_generator_serialize: (a: number, b: number, c: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_generator_parse: (a: number, b: number, c: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_rangeproof_info: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_ecdsa_adaptor_decrypt: (a: number, b: number, c: number, d: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_whitelist_signature_serialize: (a: number, b: number, c: number, d: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_whitelist_signature_parse: (a: number, b: number, c: number, d: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_parse: (a: number, b: number, c: number, d: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_serialized_size: (a: number, b: number) => number;
-  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_serialize: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_default_illegal_callback_fn: (a: number, b: number) => void;
   readonly rustsecp256k1zkp_v0_6_0_default_error_callback_fn: (a: number, b: number) => void;
   readonly rustsecp256k1zkp_v0_6_0_context_preallocated_size: (a: number) => number;
@@ -162,11 +162,14 @@ export interface InitOutput {
   readonly rustsecp256k1zkp_v0_6_0_schnorrsig_verify: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_ecdsa_adaptor_encrypt: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_ecdsa_adaptor_verify: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_ecdsa_adaptor_decrypt: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_ecdsa_adaptor_recover: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_get: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_ec_tweak_add: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_pubkey_xonly_tweak_add: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_musig_partial_sig_verify: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_generator_parse: (a: number, b: number, c: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_generator_serialize: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_generator_generate: (a: number, b: number, c: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_generator_generate_blinded: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_pedersen_commitment_parse: (a: number, b: number, c: number) => number;
@@ -175,14 +178,20 @@ export interface InitOutput {
   readonly rustsecp256k1zkp_v0_6_0_pedersen_blind_sum: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_pedersen_verify_tally: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_pedersen_blind_generator_blind_sum: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_rangeproof_info: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_rangeproof_rewind: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_rangeproof_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_rangeproof_sign: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_whitelist_sign: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_whitelist_verify: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_whitelist_signature_n_keys: (a: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_whitelist_signature_parse: (a: number, b: number, c: number, d: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_whitelist_signature_serialize: (a: number, b: number, c: number, d: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_parse: (a: number, b: number, c: number, d: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_serialize: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_surjectionproof_n_total_inputs: (a: number, b: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_surjectionproof_n_used_inputs: (a: number, b: number) => number;
+  readonly rustsecp256k1zkp_v0_6_0_surjectionproof_serialized_size: (a: number, b: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_surjectionproof_initialize: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_surjectionproof_generate: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
   readonly rustsecp256k1zkp_v0_6_0_surjectionproof_verify: (a: number, b: number, c: number, d: number, e: number) => number;
@@ -193,16 +202,15 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hc4efadc5cdebec50: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h6d3576190c79c13b: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h51d735b9192594ed: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hbbed2e584bf6b4c8: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he43c5042510a80de: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h21d4c3f9adce6c95: (a: number, b: number, c: number) => void;
-  readonly __wbindgen_free: (a: number, b: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h18317a9e88a25120: (a: number, b: number, c: number, d: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1eec66e58515f20b: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h99d99a71a298a7c6: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3cb3c20693f47601: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hee5eb7bd3bda31fb: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_free: (a: number, b: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
-  readonly wasm_bindgen__convert__closures__invoke2_mut__h65094210dba495e4: (a: number, b: number, c: number, d: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke2_mut__h0f8fd911e1c5771c: (a: number, b: number, c: number, d: number) => void;
   readonly __wbindgen_start: () => void;
 }
 
